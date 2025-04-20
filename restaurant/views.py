@@ -1,37 +1,23 @@
 from django.shortcuts import render
-from .forms import BookingForm
-from .models import Menu
+from rest_framework import generics
+from rest_framework import viewsets 
+from rest_framework import permissions
+from .serializers import *
+from .models import *
 
-# Create your views here.
-def home(request):
-    return render(request, "index.html")
+# Create your views here. 
+def index(request):
+    return render(request, 'index.html')
 
+class MenuItemsView(generics.ListCreateAPIView):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
 
-def about(request):
-    return render(request, "about.html")
-
-
-def book(request):
-    form = BookingForm()
-    if request.method == "POST":
-        form = BookingForm(request.POST)
-        if form.is_valid():
-            form.save()
-    context = {"form": form}
-    return render(request, "book.html", context)
-
-
-def menu(request):
-    menu_data = Menu.objects.all()
-    main_data = {"menu": menu_data}
-
-    return render(request, "menu.html", main_data)
-
-
-def display_menu_items(request, pk=None):
-    if pk:
-        menu_item = Menu.objects.get(pk=pk)
-    else: 
-        menu_item = ""
-
-    return render(request, "menu_item.html", {"menu_item": menu_item})
+class MenuItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
+    
+class BookingViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
